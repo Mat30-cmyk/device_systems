@@ -206,6 +206,13 @@ http://localhost:8000/users?is_active=true
 
 ![Captura de pantalla](/image/FastAPI_GET_is_active=true.png)
 
+
+## Video Youtube Evidencia
+
+```bash
+https://youtu.be/MMLlbfQdk44
+```
+
 ## Autor
 
 Desarrollado por Mateo Betancur Escobar 💻

@@ -5,8 +5,4 @@ app = FastAPI(
     title="device_systems API"
 )
 
-@app.get("/")
-def home():
-    return {
-        "message": "✅ Device Systems API funcionando correctamente"
-    }
+app.include_router(router)
