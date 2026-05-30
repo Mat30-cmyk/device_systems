@@ -1,6 +1,12 @@
 from fastapi import APIRouter, HTTPException, Response
-from app.schemas.user_schema import UserCreate, UserResponse
+from app.schemas.user_schema import UserCreate, UserResponse, UserUpdate
 from app.data.user_db import users
+
+from app.dependencies.user_dependencies import (
+    get_user_or_404,
+    validate_email_exists
+)
+
 from app.services.user_service import (
     get_all_users,
     get_user_by_id,
@@ -47,3 +53,36 @@ def create_user(user: UserCreate, response: Response):
     response.headers["X-API-Version"] = "1.0"
 
     return new_user
+
+@router.put("/{user_id}")
+def update_user(
+    user_data: UserCreate,
+    user=Depends(get_user_or_404)
+):
+
+    validate_email_exists(user_data.email)
+
+    user.update(user_data.model_dump())
+
+    return user
+
+@router.patch("/{user_id}")
+def partial_update_user(
+    user_data: UserUpdate,
+    user=Depends(get_user_or_404)
+):
+
+    update_data = user_data.model_dump(
+        exclude_unset=True
+    )
+
+    if not update_data:
+
+        raise HTTPException(
+            status_code=400,
+            detail="No se enviaron datos para actualizar"
+        )
+
+    user.update(update_data)
+
+    return user
