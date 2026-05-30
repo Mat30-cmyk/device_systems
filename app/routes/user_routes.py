@@ -1,35 +1,27 @@
 from fastapi import APIRouter, HTTPException, Response
 from app.schemas.user_schema import UserCreate, UserResponse
-from app.data.user_service import users
+from app.data.user_db import users
+from app.services.user_service import (
+    get_all_users,
+    get_user_by_id,
+    create_new_user
+)
 
 router = APIRouter()
 
 @router.get("/users", response_model=list[UserResponse])
 def get_users(role: str = None, is_active: bool = None):
 
-    filtered_users = users
-
-    if role is not None:
-        filtered_users = [
-            user for user in filtered_users
-            if user["role"] == role
-        ]
-
-    if is_active is not None:
-        filtered_users = [
-            user for user in filtered_users
-            if user["is_active"] == is_active
-        ]
-
-    return filtered_users
+    return get_all_users(role, is_active)
 
 
 @router.get("/users/{user_id}", response_model=UserResponse)
 def get_user(user_id: int):
 
-    for user in users:
-        if user["id"] == user_id:
-            return user
+    user = get_user_by_id(user_id)
+
+    if user:
+        return user
 
     raise HTTPException(
         status_code=404,
@@ -47,12 +39,9 @@ def create_user(user: UserCreate, response: Response):
                 detail="El correo ya existe"
             )
 
-    new_user = {
-        "id": len(users) + 1,
-        **user.model_dump()
-    }
-
-    users.append(new_user)
+    new_user = create_new_user(
+    user.model_dump()
+    )
 
     response.headers["X-App-Name"] = "device_systems"
     response.headers["X-API-Version"] = "1.0"
