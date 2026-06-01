@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Literal
-from typing import Optional
+from typing import Literal, Optional
+
 
 class UserCreate(BaseModel):
     name: str = Field(..., min_length=3)
@@ -8,14 +8,10 @@ class UserCreate(BaseModel):
     role: Literal["admin", "support", "user"]
     is_active: bool
 
+
 class UserUpdate(BaseModel):
-    name: Optional[str] = Field(
-        None,
-        min_length=3
-    )
-
+    name: Optional[str] = Field(None, min_length=3)
     email: Optional[EmailStr] = None
-
     role: Optional[
         Literal[
             "admin",
@@ -23,8 +19,8 @@ class UserUpdate(BaseModel):
             "user"
         ]
     ] = None
-
     is_active: Optional[bool] = None
+
 
 class UserResponse(BaseModel):
     id: int

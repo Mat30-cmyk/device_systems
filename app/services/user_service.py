@@ -39,3 +39,8 @@ def create_new_user(user_data: dict):
     users.append(new_user)
 
     return new_user
+
+
+def delete_user(user):
+
+    users.remove(user)
