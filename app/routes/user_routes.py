@@ -1,26 +1,21 @@
-from fastapi import (
-    APIRouter,
-    HTTPException,
-    Depends,
-    status
-)
+from typing import Optional
 
-from app.schemas.user_schema import (
-    UserCreate,
-    UserResponse,
-    UserUpdate
-)
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Response
+from fastapi import status
 
-from app.services.user_service import (
-    get_all_users,
-    create_new_user,
-    delete_user
-)
+from sqlalchemy.orm import Session
 
-from app.dependencies.user_dependencies import (
-    get_user_or_404,
-    validate_email_exists
-)
+from app.dependencies.database_dependency import get_db
+
+from app.schemas.user_schema import UserCreate
+from app.schemas.user_schema import UserUpdate
+from app.schemas.user_schema import UserPatch
+from app.schemas.user_schema import UserResponse
+
+from app.services.user_service import *
 
 router = APIRouter(
     prefix="/users",
@@ -29,15 +24,30 @@ router = APIRouter(
 
 
 @router.get(
-    "",
+    "/",
     response_model=list[UserResponse]
 )
 def get_users(
-    role: str = None,
-    is_active: bool = None
+    role: Optional[str] = None,
+    is_active: Optional[bool] = None,
+    db: Session = Depends(get_db)
 ):
 
-    return get_all_users(role, is_active)
+    users = get_all_users(db)
+
+    if role:
+        users = [
+            user for user in users
+            if user.role == role
+        ]
+
+    if is_active is not None:
+        users = [
+            user for user in users
+            if user.is_active == is_active
+        ]
+
+    return users
 
 
 @router.get(
@@ -45,25 +55,52 @@ def get_users(
     response_model=UserResponse
 )
 def get_user(
-    user=Depends(get_user_or_404)
+    user_id: int,
+    db: Session = Depends(get_db)
 ):
+
+    user = get_user_by_id(
+        db,
+        user_id
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="Usuario no encontrado"
+        )
 
     return user
 
 
 @router.post(
-    "",
+    "/",
     response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=201
 )
-def create_user(
-    user: UserCreate
+def create_new_user(
+    user: UserCreate,
+    response: Response,
+    db: Session = Depends(get_db)
 ):
 
-    validate_email_exists(user.email)
+    existing = get_user_by_email(
+        db,
+        user.email
+    )
 
-    return create_new_user(
-        user.model_dump()
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Email duplicado"
+        )
+
+    response.headers["X-App-Name"] = "device_systems"
+    response.headers["X-API-Version"] = "1.0"
+
+    return create_user(
+        db,
+        user
     )
 
 
@@ -71,50 +108,89 @@ def create_user(
     "/{user_id}",
     response_model=UserResponse
 )
-def update_user(
-    user_data: UserCreate,
-    user=Depends(get_user_or_404)
+def update_existing_user(
+    user_id: int,
+    user: UserUpdate,
+    db: Session = Depends(get_db)
 ):
 
-    user.update(
-        user_data.model_dump()
+    user_db = get_user_by_id(
+        db,
+        user_id
     )
 
-    return user
+    if not user_db:
+        raise HTTPException(
+            404,
+            "Usuario no encontrado"
+        )
+
+    return update_user(
+        db,
+        user_db,
+        user
+    )
 
 
 @router.patch(
     "/{user_id}",
     response_model=UserResponse
 )
-def partial_update_user(
-    user_data: UserUpdate,
-    user=Depends(get_user_or_404)
+def patch_existing_user(
+    user_id: int,
+    user: UserPatch,
+    db: Session = Depends(get_db)
 ):
 
-    update_data = user_data.model_dump(
+    user_db = get_user_by_id(
+        db,
+        user_id
+    )
+
+    if not user_db:
+        raise HTTPException(
+            404,
+            "Usuario no encontrado"
+        )
+
+    data = user.model_dump(
         exclude_unset=True
     )
 
-    if not update_data:
+    if not data:
         raise HTTPException(
-            status_code=400,
-            detail="No se enviaron datos para actualizar"
+            400,
+            "No hay datos para actualizar"
         )
 
-    user.update(update_data)
-
-    return user
+    return patch_user(
+        db,
+        user_db,
+        data
+    )
 
 
 @router.delete(
     "/{user_id}",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=204
 )
-def remove_user(
-    user=Depends(get_user_or_404)
+def delete_existing_user(
+    user_id: int,
+    db: Session = Depends(get_db)
 ):
 
-    delete_user(user)
+    user_db = get_user_by_id(
+        db,
+        user_id
+    )
 
-    return
+    if not user_db:
+        raise HTTPException(
+            404,
+            "Usuario no encontrado"
+        )
+
+    delete_user(
+        db,
+        user_db
+    )
