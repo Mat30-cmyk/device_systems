@@ -1,46 +1,73 @@
-from app.data.user_db import users
+from sqlalchemy.orm import Session
+
+from app.models.user_model import User
 
 
-def get_all_users(role=None, is_active=None):
+def get_all_users(db: Session):
 
-    filtered_users = users
-
-    if role is not None:
-        filtered_users = [
-            user for user in filtered_users
-            if user["role"] == role
-        ]
-
-    if is_active is not None:
-        filtered_users = [
-            user for user in filtered_users
-            if user["is_active"] == is_active
-        ]
-
-    return filtered_users
+    return db.query(User).all()
 
 
-def get_user_by_id(user_id: int):
+def get_user_by_id(db: Session, user_id: int):
 
-    for user in users:
-        if user["id"] == user_id:
-            return user
-
-    return None
+    return db.query(User).filter(
+        User.id == user_id
+    ).first()
 
 
-def create_new_user(user_data: dict):
+def get_user_by_email(db: Session, email: str):
 
-    new_user = {
-        "id": len(users) + 1,
-        **user_data
-    }
+    return db.query(User).filter(
+        User.email == email
+    ).first()
 
-    users.append(new_user)
+
+def create_user(db: Session, user):
+
+    new_user = User(
+        name=user.name,
+        email=user.email,
+        role=user.role,
+        is_active=user.is_active
+    )
+
+    db.add(new_user)
+
+    db.commit()
+
+    db.refresh(new_user)
 
     return new_user
 
 
-def delete_user(user):
+def update_user(db: Session, user_db, user):
 
-    users.remove(user)
+    user_db.name = user.name
+    user_db.email = user.email
+    user_db.role = user.role
+    user_db.is_active = user.is_active
+
+    db.commit()
+
+    db.refresh(user_db)
+
+    return user_db
+
+
+def patch_user(db: Session, user_db, data):
+
+    for key, value in data.items():
+        setattr(user_db, key, value)
+
+    db.commit()
+
+    db.refresh(user_db)
+
+    return user_db
+
+
+def delete_user(db: Session, user_db):
+
+    db.delete(user_db)
+
+    db.commit()

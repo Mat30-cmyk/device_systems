@@ -1,1 +1,8 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
+
+# Ignorar la carpeta del entorno virtual de Python (Windows / Linux)
+Lib/
+lib/
+Include/
+Scripts/
+bin/
