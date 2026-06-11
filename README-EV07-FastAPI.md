@@ -1,4 +1,4 @@
-# device_systems
+# device_systems V 1.0
 
 Device Systems es una API REST desarrollada con FastAPI para la gestión de usuarios del sistema. Este proyecto fue realizado como evidencia de aprendizaje.
 
