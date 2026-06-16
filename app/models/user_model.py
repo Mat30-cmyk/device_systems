@@ -5,6 +5,7 @@ from sqlalchemy import Boolean
 from sqlalchemy import DateTime
 
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 from app.database.connection import Base
 
@@ -33,4 +34,9 @@ class User(Base):
     created_at = Column(
         DateTime,
         default=datetime.utcnow
+    )
+
+    loans = relationship(
+        "Loan",
+        back_populates="user"
     )
