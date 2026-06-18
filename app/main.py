@@ -19,7 +19,6 @@ app = FastAPI(
 
 @app.get("/")
 def home():
-
     return {
         "message": "device_systems API"
     }
