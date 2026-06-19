@@ -1,5 +1,6 @@
 from typing import Optional
 
+from fastapi import HTTPException, status
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
@@ -14,10 +15,6 @@ from app.schemas.loan_schema import LoanCreate
 # ==================================================
 
 def get_all_loans_with_details(db: Session):
-    """
-    Obtiene todos los préstamos incluyendo
-    la información relacionada de usuarios y dispositivos.
-    """
     return (
         db.query(Loan)
         .join(User)
@@ -26,41 +23,147 @@ def get_all_loans_with_details(db: Session):
     )
 
 
-def get_loans_by_user_id(
+def get_loan_by_id(
     db: Session,
-    user_id: int,
+    loan_id: int,
 ):
-    """
-    Obtiene todos los préstamos
-    asociados a un usuario.
-    """
-    return (
+
+    loan = (
         db.query(Loan)
-        .join(User)
-        .filter(Loan.user_id == user_id)
-        .all()
+        .filter(Loan.id == loan_id)
+        .first()
     )
 
+    if not loan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Préstamo no encontrado"
+        )
 
-def get_loans_by_device_id(
+    return loan
+
+# ==================================================
+# CREAR PRÉSTAMO
+# ==================================================
+
+def create_loan(
     db: Session,
-    device_id: int,
+    loan_data: LoanCreate,
 ):
-    """
-    Obtiene todos los préstamos
-    asociados a un dispositivo.
-    """
-    return (
-        db.query(Loan)
-        .join(Device)
-        .filter(Loan.device_id == device_id)
-        .all()
+
+    user = (
+        db.query(User)
+        .filter(User.id == loan_data.user_id)
+        .first()
     )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+
+    device = (
+        db.query(Device)
+        .filter(Device.id == loan_data.device_id)
+        .first()
+    )
+
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Dispositivo no encontrado"
+        )
+
+    if not device.is_available:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Dispositivo no disponible"
+        )
+
+    loan = Loan(
+        user_id=loan_data.user_id,
+        device_id=loan_data.device_id,
+        status="active"
+    )
+
+    device.is_available = False
+
+    db.add(loan)
+    db.commit()
+    db.refresh(loan)
+
+    return loan
 
 
 # ==================================================
-# FILTROS AVANZADOS
+# DEVOLVER PRÉSTAMO
 # ==================================================
+
+def return_loan(
+    db: Session,
+    loan_id: int,
+):
+
+    loan = (
+        db.query(Loan)
+        .filter(Loan.id == loan_id)
+        .first()
+    )
+
+    if not loan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Préstamo no encontrado"
+        )
+
+    if loan.status == "returned":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="El préstamo ya fue devuelto"
+        )
+
+    loan.status = "returned"
+
+    device = (
+        db.query(Device)
+        .filter(Device.id == loan.device_id)
+        .first()
+    )
+
+    if device:
+        device.is_available = True
+
+    db.commit()
+
+    return {
+        "message": "Préstamo devuelto correctamente"
+    }
+
+
+# ==================================================
+# ELIMINAR PRÉSTAMO
+# ==================================================
+
+def delete_loan(
+    db: Session,
+    loan_id: int,
+):
+
+    loan = (
+        db.query(Loan)
+        .filter(Loan.id == loan_id)
+        .first()
+    )
+
+    if not loan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Préstamo no encontrado"
+        )
+
+    db.delete(loan)
+    db.commit()
 
 def get_filtered_loans(
     db: Session,
@@ -68,14 +171,6 @@ def get_filtered_loans(
     user_email: Optional[str] = None,
     device_type: Optional[str] = None,
 ):
-    """
-    Obtiene préstamos aplicando filtros dinámicos.
-
-    Filtros disponibles:
-    - status
-    - user_email
-    - device_type
-    """
 
     query = (
         db.query(Loan)
@@ -83,47 +178,23 @@ def get_filtered_loans(
         .join(Device)
     )
 
-    conditions = []
-
     if status:
-        conditions.append(Loan.status == status)
+        query = query.filter(
+            Loan.status == status
+        )
 
     if user_email:
-        conditions.append(
-            User.email.ilike(f"%{user_email}%")
+        query = query.filter(
+            User.email.ilike(
+                f"%{user_email}%"
+            )
         )
 
     if device_type:
-        conditions.append(
-            Device.device_type.ilike(f"%{device_type}%")
-        )
-
-    if conditions:
         query = query.filter(
-            and_(*conditions)
+            Device.device_type.ilike(
+                f"%{device_type}%"
+            )
         )
 
     return query.all()
-
-
-# ==================================================
-# CREACIÓN DE PRÉSTAMOS
-# ==================================================
-
-def create_loan(
-    db: Session,
-    loan_data: LoanCreate,
-):
-    """
-    Crea un nuevo préstamo.
-    """
-
-    db_loan = Loan(
-        **loan_data.model_dump()
-    )
-
-    db.add(db_loan)
-    db.commit()
-    db.refresh(db_loan)
-
-    return db_loan

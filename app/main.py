@@ -1,28 +1,48 @@
 from fastapi import FastAPI
 
-from app.database.connection import Base
-from app.database.connection import engine
+from app.database.connection import Base, engine
 
-from app.routes.user_routes import router
+from app.routes.user_routes import router as user_router
 from app.routes.device_routes import router as device_router
 from app.routes.loan_routes import router as loan_router
 
-Base.metadata.create_all(
-    bind=engine
-)
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="device_systems API",
-    description="API REST para gestión de usuarios",
-    version="3.0.0"
+    title="Sistema de Gestión de Dispositivos",
+    description="""
+## API REST para Administración de Recursos Tecnológicos
+
+Esta API permite gestionar:
+
+- Usuarios
+- Dispositivos
+- Préstamos
+
+Desarrollada con FastAPI, SQLAlchemy y SQLite.
+    """,
+    version="4.0.0",
+    contact={
+        "name": "Mateo Betancur Escobar",
+        "email": "betancurmateo116@gmail.com"
+    },
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
-@app.get("/")
+
+@app.get(
+    "/",
+    tags=["Inicio"],
+    summary="Página principal"
+)
 def home():
     return {
-        "message": "device_systems API"
+        "message": "Bienvenido al Sistema de Gestión de Dispositivos"
     }
 
-app.include_router(router)
+
+app.include_router(user_router)
 app.include_router(device_router)
 app.include_router(loan_router)

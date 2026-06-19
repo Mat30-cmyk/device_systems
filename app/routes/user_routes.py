@@ -19,12 +19,13 @@ from app.services.user_service import *
 
 router = APIRouter(
     prefix="/users",
-    tags=["Users"]
+    tags=["Usuarios"]
 )
 
 
 @router.get(
     "/",
+    summary="Listar usuarios",
     response_model=list[UserResponse]
 )
 def get_users(
@@ -52,6 +53,7 @@ def get_users(
 
 @router.get(
     "/{user_id}",
+    summary="Obtener usuario por ID",
     response_model=UserResponse
 )
 def get_user(
@@ -75,6 +77,7 @@ def get_user(
 
 @router.post(
     "/",
+    summary="Crear nuevo usuario",
     response_model=UserResponse,
     status_code=201
 )
@@ -106,6 +109,7 @@ def create_new_user(
 
 @router.put(
     "/{user_id}",
+    summary="Actualizar usuario existente",
     response_model=UserResponse
 )
 def update_existing_user(
@@ -134,6 +138,7 @@ def update_existing_user(
 
 @router.patch(
     "/{user_id}",
+    summary="Actualizar parcialmente un usuario",
     response_model=UserResponse
 )
 def patch_existing_user(
@@ -172,6 +177,7 @@ def patch_existing_user(
 
 @router.delete(
     "/{user_id}",
+    summary="Eliminar un usuario",
     status_code=204
 )
 def delete_existing_user(
