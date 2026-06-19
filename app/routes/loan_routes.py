@@ -4,20 +4,25 @@ from fastapi import (
     APIRouter,
     Depends,
     status,
+    HTTPException
 )
+
 from sqlalchemy.orm import Session
 
 from app.dependencies.database_dependency import get_db
+
 from app.schemas.loan_schema import (
     LoanCreate,
     LoanDetailResponse,
     LoanResponse,
 )
+from fastapi import status
+
 from app.services import loan_service
 
 router = APIRouter(
     prefix="/loans",
-    tags=["Loans"],
+    tags=["Préstamos"],
 )
 
 
@@ -26,85 +31,43 @@ router = APIRouter(
 # ==================================================
 @router.get(
     "/",
-    response_model=List[LoanDetailResponse],
+    response_model=list[LoanDetailResponse],
     status_code=status.HTTP_200_OK,
+    summary="Listar préstamos"
 )
 def get_loans(
-    status: Optional[str] = None,
+    status_filter: Optional[str] = None,
     user_email: Optional[str] = None,
     device_type: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
-    """
-    Obtiene préstamos aplicando filtros opcionales.
 
-    Filtros disponibles:
-    - status
-    - user_email
-    - device_type
-    """
     return loan_service.get_filtered_loans(
         db=db,
-        status=status,
+        status=status_filter,
         user_email=user_email,
-        device_type=device_type,
+        device_type=device_type
     )
 
 
 # ==================================================
-# GET /loans/details
+# GET /loans/{loan_id}
 # ==================================================
 @router.get(
-    "/details",
-    response_model=List[LoanDetailResponse],
+    "/{loan_id}",
+    response_model=LoanDetailResponse,
     status_code=status.HTTP_200_OK,
+    summary="Obtener préstamo por ID"
 )
-def get_loans_details(
-    db: Session = Depends(get_db),
+def get_loan_by_id(
+    loan_id: int,
+    db: Session = Depends(get_db)
 ):
-    """
-    Retorna todos los préstamos junto con la
-    información relacionada de usuarios y dispositivos.
-    """
-    return loan_service.get_all_loans_with_details(db)
 
-
-# ==================================================
-# GET /loans/users/{user_id}
-# ==================================================
-@router.get(
-    "/users/{user_id}",
-    response_model=List[LoanDetailResponse],
-    status_code=status.HTTP_200_OK,
-)
-def get_loans_by_user(
-    user_id: int,
-    db: Session = Depends(get_db),
-):
-    """
-    Obtiene todos los préstamos asociados
-    a un usuario específico.
-    """
-    return loan_service.get_loans_by_user_id(db, user_id)
-
-
-# ==================================================
-# GET /loans/devices/{device_id}
-# ==================================================
-@router.get(
-    "/devices/{device_id}",
-    response_model=List[LoanDetailResponse],
-    status_code=status.HTTP_200_OK,
-)
-def get_loans_by_device(
-    device_id: int,
-    db: Session = Depends(get_db),
-):
-    """
-    Obtiene todos los préstamos asociados
-    a un dispositivo específico.
-    """
-    return loan_service.get_loans_by_device_id(db, device_id)
+    return loan_service.get_loan_by_id(
+        db,
+        loan_id
+    )
 
 
 # ==================================================
@@ -114,12 +77,68 @@ def get_loans_by_device(
     "/",
     response_model=LoanResponse,
     status_code=status.HTTP_201_CREATED,
+    summary="Crear préstamo"
 )
-def create_new_loan(
+def create_loan(
     loan_data: LoanCreate,
+    db: Session = Depends(get_db)
+):
+
+    return loan_service.create_loan(
+        db,
+        loan_data
+    )
+
+# ==================================================
+# GET /loans/details
+# ==================================================
+@router.get(
+    "/details",
+    response_model=list[LoanDetailResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Obtener detalles de todos los préstamos"
+)
+def get_loans_details(
     db: Session = Depends(get_db),
 ):
-    """
-    Crea un nuevo préstamo.
-    """
-    return loan_service.create_loan(db, loan_data)
+
+    return loan_service.get_all_loans_with_details(db)
+
+# ==================================================
+# PATCH /loans/{loan_id}/return
+# ==================================================
+@router.patch(
+    "/{loan_id}/return",
+    status_code=status.HTTP_200_OK,
+    summary="Devolver préstamo"
+)
+def return_loan(
+    loan_id: int,
+    db: Session = Depends(get_db)
+):
+
+    return loan_service.return_loan(
+        db,
+        loan_id
+    )
+
+
+# ==================================================
+# DELETE /loans/{loan_id}
+# ==================================================
+@router.delete(
+    "/{loan_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Eliminar préstamo"
+)
+def delete_loan(
+    loan_id: int,
+    db: Session = Depends(get_db)
+):
+
+    loan_service.delete_loan(
+        db,
+        loan_id
+    )
+
+    return None

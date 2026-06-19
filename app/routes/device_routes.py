@@ -26,7 +26,7 @@ from app.services.device_service import (
 
 router = APIRouter(
     prefix="/devices",
-    tags=["Devices"],
+    tags=["Dispositivos"],
 )
 
 
@@ -35,6 +35,7 @@ router = APIRouter(
 # ==================================================
 @router.get(
     "/",
+    summary="Listar dispositivos",
     response_model=list[DeviceResponse],
     status_code=status.HTTP_200_OK,
 )
@@ -68,6 +69,7 @@ def get_devices(
 # ==================================================
 @router.get(
     "/{device_id}",
+    summary="Obtener dispositivo por ID",
     response_model=DeviceResponse,
     status_code=status.HTTP_200_OK,
 )
@@ -91,6 +93,7 @@ def get_device(
 # ==================================================
 @router.post(
     "/",
+    summary="Crear nuevo dispositivo",
     response_model=DeviceResponse,
     status_code=status.HTTP_201_CREATED,
 )
@@ -106,6 +109,7 @@ def create_new_device(
 # ==================================================
 @router.put(
     "/{device_id}",
+    summary="Actualizar dispositivo existente",
     response_model=DeviceResponse,
     status_code=status.HTTP_200_OK,
 )
@@ -130,6 +134,7 @@ def update_full_device(
 # ==================================================
 @router.patch(
     "/{device_id}",
+    summary="Actualizar parcialmente un dispositivo",
     response_model=DeviceResponse,
     status_code=status.HTTP_200_OK,
 )
@@ -154,6 +159,7 @@ def patch_partial_device(
 # ==================================================
 @router.delete(
     "/{device_id}",
+    summary="Eliminar un dispositivo",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def remove_device(

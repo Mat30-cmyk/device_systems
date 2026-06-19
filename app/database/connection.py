@@ -2,6 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 
+import os
+
 DATABASE_URL = "sqlite:///./device_systems.db"
 
 engine = create_engine(
@@ -14,5 +16,7 @@ SessionLocal = sessionmaker(
     autoflush=False,
     bind=engine
 )
+
+print("BASE DE DATOS:", os.path.abspath("device_systems.db"))
 
 Base = declarative_base()
