@@ -17,6 +17,7 @@ from app.schemas.loan_schema import (
     LoanResponse,
 )
 from fastapi import status
+from app.models.loan_model import Loan
 
 from app.services import loan_service
 
@@ -48,6 +49,21 @@ def get_loans(
         user_email=user_email,
         device_type=device_type
     )
+
+# ==================================================
+# GET /loans/details
+# ==================================================
+@router.get(
+    "/details",
+    response_model=list[LoanDetailResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Obtener detalles de todos los préstamos"
+)
+def get_loans_details(
+    db: Session = Depends(get_db),
+):
+
+    return loan_service.get_all_loans_with_details(db)
 
 
 # ==================================================
@@ -88,21 +104,6 @@ def create_loan(
         db,
         loan_data
     )
-
-# ==================================================
-# GET /loans/details
-# ==================================================
-@router.get(
-    "/details",
-    response_model=list[LoanDetailResponse],
-    status_code=status.HTTP_200_OK,
-    summary="Obtener detalles de todos los préstamos"
-)
-def get_loans_details(
-    db: Session = Depends(get_db),
-):
-
-    return loan_service.get_all_loans_with_details(db)
 
 # ==================================================
 # PATCH /loans/{loan_id}/return
