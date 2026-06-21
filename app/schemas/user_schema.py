@@ -13,6 +13,8 @@ class UserCreate(BaseModel):
         min_length=3
     )
 
+    password: str  # El usuario envía "Admin123" #contraseña Aquí
+
     email: EmailStr
 
     role: RoleType
