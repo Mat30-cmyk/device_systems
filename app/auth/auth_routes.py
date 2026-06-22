@@ -35,7 +35,7 @@ from app.auth.security import (
 
 router = APIRouter(
     prefix="/auth",
-    tags=["Auth"]
+    tags=["autenticación"]
 )
 
 

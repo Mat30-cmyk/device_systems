@@ -377,3 +377,9 @@ Las relaciones establecidas con SQLAlchemy simplificaron la conexión entre usua
 Las consultas avanzadas y los filtros implementados mejoraron significativamente la capacidad de búsqueda y recuperación de información, permitiendo obtener datos relacionados de forma eficiente.
 
 Finalmente, esta actividad permitió comprender la importancia de la persistencia avanzada, las migraciones controladas y el uso de relaciones entre entidades para construir aplicaciones backend escalables, mantenibles y alineadas con las buenas prácticas del desarrollo profesional de software.
+
+## Video Youtube Evidencia
+
+```bash
+https://youtu.be/VG3-A9xxWks
+```
