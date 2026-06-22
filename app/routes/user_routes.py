@@ -7,6 +7,9 @@ from fastapi import Response
 from fastapi import status
 
 from sqlalchemy.orm import Session
+from app.auth.role_dependency import (
+    require_roles
+)
 
 from app.dependencies.database_dependency import get_db
 
@@ -182,7 +185,10 @@ def patch_existing_user(
 )
 def delete_existing_user(
     user_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(
+        require_roles("admin")
+    )
 ):
 
     user_db = get_user_by_id(
