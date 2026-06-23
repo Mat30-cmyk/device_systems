@@ -1,4 +1,12 @@
-# Device Systems V 3.0 FastAPI SQLAlchemy
+# Device Systems - FastAPI SQLAlchemy
+
+## Información General
+
+**Proyecto:** device_systems
+**Actividad:** GA1-220501096-01-AA1-EV09 – FastAPI con SQLAlchemy: Persistencia de Datos y CRUD sobre Base de Datos en device_systems.
+**Versión:** 3.0.0
+
+---
 
 ## Descripción
 

@@ -21,25 +21,6 @@ def get_user_by_email(db: Session, email: str):
         User.email == email
     ).first()
 
-
-def create_user(db: Session, user):
-
-    new_user = User(
-        name=user.name,
-        email=user.email,
-        role=user.role,
-        is_active=user.is_active
-    )
-
-    db.add(new_user)
-
-    db.commit()
-
-    db.refresh(new_user)
-
-    return new_user
-
-
 def update_user(db: Session, user_db, user):
 
     user_db.name = user.name

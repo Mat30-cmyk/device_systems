@@ -5,7 +5,7 @@ from pydantic import (
     ConfigDict,
     field_validator
 )
-
+from pydantic import BaseModel, Field
 import re
 
 
@@ -73,10 +73,13 @@ class UserRegister(BaseModel):
 
 
 class UserLogin(BaseModel):
+    email: str = Field(
+        example="juan@gmail.com"
+    )
 
-    email: EmailStr
-
-    password: str
+    password: str = Field(
+        example="Password123"
+    )
 
 
 class Token(BaseModel):
