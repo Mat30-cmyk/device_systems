@@ -3,6 +3,12 @@ from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import status
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+from app.middlewares.rate_limit import limiter
+from fastapi import Request
+
 from sqlalchemy.orm import Session
 
 from app.dependencies.database_dependency import get_db
@@ -42,7 +48,12 @@ router = APIRouter(
 @router.post(
     "/register",
     response_model=UserResponse,
-    status_code=201
+    status_code=201,
+    responses={
+        201: {"description": "Usuario registrado correctamente"},
+        400: {"description": "Email duplicado"},
+        422: {"description": "Error de validación"}
+    }
 )
 def register(
     user: UserRegister,
@@ -65,12 +76,16 @@ def register(
         user
     )
 
-
 @router.post(
     "/login",
-    response_model=Token
+    response_model=Token,
+    summary="Iniciar sesión",
+    description="Autentica un usuario y genera un token JWT válido.",
+    response_description="Token JWT generado exitosamente"
 )
+@limiter.limit("5/minute")
 def login(
+    request: Request,
     user: UserLogin,
     db: Session = Depends(get_db)
 ):

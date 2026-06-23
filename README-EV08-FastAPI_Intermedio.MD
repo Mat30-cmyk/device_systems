@@ -1,4 +1,10 @@
-# FastAPI Intermedio device_systems V 2.0
+# device_systems - FastAPI Intermedio
+
+## Información General
+
+**Proyecto:** device_systems
+**Actividad:** GA1-220501096-01-AA1-EV08 – FastAPI Intermedio: Evolución de device_systems con CRUD Completo, Manejo de Errores, Swagger/OpenAPI y Dependency Injection.
+**Versión:** 2.0.0
 
 ## Descripción
 

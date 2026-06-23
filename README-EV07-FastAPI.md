@@ -1,4 +1,14 @@
-# device_systems V 1.0
+# device_systems - FastAPI API REST para Gestión de Usuarios
+
+## Información General
+
+**Proyecto:** device_systems
+**Actividad:** GA1-220501096-01-AA1-EV07 – Fundamentos de FastAPI: API REST para Gestión de Usuarios.
+**Versión:** 1.0.0
+
+---
+
+
 
 Device Systems es una API REST desarrollada con FastAPI para la gestión de usuarios del sistema. Este proyecto fue realizado como evidencia de aprendizaje.
 

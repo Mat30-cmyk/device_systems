@@ -1,4 +1,10 @@
-# EV10 - V 4.0 - Persistencia Avanzada y Relaciones con SQLAlchemy
+# device_system - Persistencia Avanzada y Relaciones con SQLAlchemy
+
+## Información General
+
+**Proyecto:** device_systems
+**Actividad:** GA1-220501096-01-AA1-EV10 – FastAPI Avanzado: Migraciones con Alembic, Asociaciones de Modelos y Consultas con Joins en device_systems.
+**Versión:** 4.0.0
 
 ---
 
