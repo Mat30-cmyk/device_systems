@@ -270,10 +270,16 @@ No se recomienda utilizar `"*"` en producción cuando se manejan credenciales po
 
 ---
 
-# 12. Reflexión Final
+# Reflexión Final
 
 La implementación de seguridad en APIs REST es fundamental para proteger la información y controlar el acceso a los recursos del sistema.
 
 Durante esta actividad se aplicaron mecanismos de autenticación mediante JWT, almacenamiento seguro de contraseñas usando hash con Passlib, autorización basada en roles, validaciones avanzadas con Pydantic v2, middleware para trazabilidad de peticiones, configuración CORS y rate limiting para prevenir abusos.
 
 Estas prácticas permiten construir APIs más seguras, escalables y alineadas con estándares utilizados en entornos reales de desarrollo backend.
+
+# Video De Socialización 
+
+```text
+https://youtu.be/9v-cZZh1Aws
+```
