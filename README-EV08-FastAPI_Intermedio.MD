@@ -419,3 +419,7 @@ Se aplicaron conceptos intermedios de FastAPI como:
 * Arquitectura organizada por capas.
 
 Estas mejoras permiten construir APIs más mantenibles, reutilizables, escalables y alineadas con buenas prácticas de desarrollo backend.
+
+# Video Explicativo en Youtube
+
++ Link: https://youtu.be/0eJO0Q2QW9A
