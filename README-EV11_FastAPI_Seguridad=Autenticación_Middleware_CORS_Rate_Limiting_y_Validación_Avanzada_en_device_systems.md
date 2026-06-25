@@ -278,7 +278,7 @@ Durante esta actividad se aplicaron mecanismos de autenticación mediante JWT, a
 
 Estas prácticas permiten construir APIs más seguras, escalables y alineadas con estándares utilizados en entornos reales de desarrollo backend.
 
-# Video De Socialización 
+# Video De Socialización EV11
 
 ```text
 https://youtu.be/9v-cZZh1Aws
